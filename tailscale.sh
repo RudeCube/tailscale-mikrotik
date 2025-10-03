@@ -33,13 +33,6 @@ if [[ -n "$STARTUP_SCRIPT" ]]; then
   bash "$STARTUP_SCRIPT" || exit $?
 fi
 
-# Clean and add DNAT rule to forward 100.64.0.0/10 → 172.17.0.1
-iptables -t nat -D PREROUTING -d 100.64.0.0/10 -j DNAT --to-destination ${CONTAINER_GATEWAY} 2>/dev/null || true
-iptables -t nat -C PREROUTING -d 100.64.0.0/10 -j DNAT --to-destination ${CONTAINER_GATEWAY} 2>/dev/null || iptables -t nat -A PREROUTING -d 100.64.0.0/10 -j DNAT --to-destination ${CONTAINER_GATEWAY}
-
-# Allow forwarding to the target only if not already allowed
-iptables -C FORWARD -d ${CONTAINER_GATEWAY} -j ACCEPT 2>/dev/null || iptables -A FORWARD -d ${CONTAINER_GATEWAY} -j ACCEPT
-
 # Start tailscaled in background
 /usr/local/bin/tailscaled ${TAILSCALED_ARGS} &
 
@@ -58,6 +51,13 @@ if ! /usr/local/bin/tailscale status | grep -q "Logged in as"; then
 fi
 
 echo "Tailscale started"
+
+# Clean and add DNAT rule to forward 100.64.0.0/10 → 172.17.0.1
+iptables -t nat -D PREROUTING -d 100.64.0.0/10 -j DNAT --to-destination ${CONTAINER_GATEWAY} 2>/dev/null || true
+iptables -t nat -C PREROUTING -d 100.64.0.0/10 -j DNAT --to-destination ${CONTAINER_GATEWAY} 2>/dev/null || iptables -t nat -A PREROUTING -d 100.64.0.0/10 -j DNAT --to-destination ${CONTAINER_GATEWAY}
+
+# Allow forwarding to the target only if not already allowed
+iptables -C FORWARD -d ${CONTAINER_GATEWAY} -j ACCEPT 2>/dev/null || iptables -A FORWARD -d ${CONTAINER_GATEWAY} -j ACCEPT
 
 # Bring background jobs to foreground
 fg %1
