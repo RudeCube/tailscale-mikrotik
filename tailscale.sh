@@ -33,22 +33,31 @@ if [[ -n "$STARTUP_SCRIPT" ]]; then
   bash "$STARTUP_SCRIPT" || exit $?
 fi
 
-# Start tailscaled in background
+# # Start tailscaled in background
+# /usr/local/bin/tailscaled ${TAILSCALED_ARGS} &
+
+# # Wait for tailscaled to become responsive
+# until /usr/local/bin/tailscale status >/dev/null 2>&1; do
+#   sleep 0.1
+# done
+
+# # Bring up tailscale if not already connected
+# if ! /usr/local/bin/tailscale status | grep -q "Logged in as"; then
+#   /usr/local/bin/tailscale up \
+#     --authkey="${AUTH_KEY}" \
+#     --login-server "${LOGIN_SERVER}" \
+#     --advertise-routes="${ADVERTISE_ROUTES}" \
+#     ${TAILSCALE_ARGS}
+# fi
+
+# Start tailscaled and bring tailscale up
 /usr/local/bin/tailscaled ${TAILSCALED_ARGS} &
-
-# Wait for tailscaled to become responsive
-until /usr/local/bin/tailscale status >/dev/null 2>&1; do
-  sleep 0.1
-done
-
-# Bring up tailscale if not already connected
-if ! /usr/local/bin/tailscale status | grep -q "Logged in as"; then
-  /usr/local/bin/tailscale up \
-    --authkey="${AUTH_KEY}" \
-    --login-server "${LOGIN_SERVER}" \
-    --advertise-routes="${ADVERTISE_ROUTES}" \
-    ${TAILSCALE_ARGS}
-fi
+until /usr/local/bin/tailscale up \
+  --authkey="${AUTH_KEY}" \
+	--login-server "${LOGIN_SERVER}" \
+	--advertise-routes="${ADVERTISE_ROUTES}" \
+  ${TAILSCALE_ARGS}
+do
 
 echo "Tailscale started"
 
