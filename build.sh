@@ -51,4 +51,4 @@ docker buildx build \
   --platform $PLATFORM \
   --load -t ghcr.io/rudecube/tailscale-mikrotik:$VERSION .
 
-docker save -o tailscale.tar ghcr.io/fluent-networks/tailscale-mikrotik:$VERSION
+docker save -o tailscale.tar ghcr.io/rudecube/tailscale-mikrotik:$VERSION
