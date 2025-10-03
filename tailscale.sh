@@ -58,6 +58,8 @@ until /usr/local/bin/tailscale up \
 	--advertise-routes="${ADVERTISE_ROUTES}" \
   ${TAILSCALE_ARGS}
 do
+	sleep 0.1
+done
 
 echo "Tailscale started"
 
